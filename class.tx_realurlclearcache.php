@@ -41,16 +41,15 @@
  */
 class tx_realurlclearcache {
 	/**
-	 * Clears the actual RealURL cache tables inside the database (doesn't clear loggin tables)
+	 * Clears the actual RealURL cache tables inside the database
 	 *
 	 * @return	void
 	 */
 	public static function clear() {
-		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_chashcache;');
-		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_pathcache;');
+		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_pathdata;');
 		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_uniqalias;');
-		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_urldecodecache;');
-		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_urlencodecache;');
+		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_uniqalias_cache_map;');
+		$GLOBALS['TYPO3_DB']->sql_query('TRUNCATE TABLE tx_realurl_urldata;');
 	}
 	
 	/**
@@ -59,9 +58,9 @@ class tx_realurlclearcache {
 	 * @return bool
 	 */
 	public static function isInsideDbList() {
-		$s_scriptName = t3lib_div::getIndpEnv('SCRIPT_NAME');
+		$s_scriptName = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('SCRIPT_NAME');
 		$i_pathLenght = strlen($s_scriptName);
-		if(substr($s_scriptName,$i_pathLength-11) == 'db_list.php') return true;
+		if(substr($s_scriptName,$i_pathLenght-11) == 'db_list.php') return true;
 		return false;
 	}
 	
@@ -78,7 +77,7 @@ class tx_realurlclearcache {
 		if(!self::isInsideDbList()) return;
 		
 		// Clear cache on command 
-		if(t3lib_div::_GET('realurl_clearcache') == 'page') {
+		if(\TYPO3\CMS\Core\Utility\GeneralUtility::_GET('realurl_clearcache') == 'page') {
 			$this->clearPageCache();
 		}
 		
@@ -94,20 +93,20 @@ class tx_realurlclearcache {
 			),
 			$a_params['markers']['BUTTONLIST_RIGHT']
 		);
-		$a_seperatedItems = t3lib_div::trimExplode('|',$s_buttonsMarker);
+		$a_seperatedItems = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode('|',$s_buttonsMarker);
 		
 		// Check if there are any link items, if not we will not add ours either
 		if(count($a_seperatedItems) <= 1) return;
 		
 		// Generate cache clearing URL
-		$s_clearCacheCmdUri = t3lib_div::getIndpEnv('SCRIPT_NAME');
-		$a_queryStringParts = t3lib_div::trimExplode('&',t3lib_div::getIndpEnv('QUERY_STRING'));
-		if(t3lib_div::_GET('realurl_clearcache') != 'page') $a_queryStringParts[] = 'realurl_clearcache=page';
+		$s_clearCacheCmdUri = \TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('SCRIPT_NAME');
+		$a_queryStringParts = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode('&',\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('QUERY_STRING'));
+		if(\TYPO3\CMS\Core\Utility\GeneralUtility::_GET('realurl_clearcache') != 'page') $a_queryStringParts[] = 'realurl_clearcache=page';
 		$s_clearCacheCmdUri .= '?'.implode('&',$a_queryStringParts);
 		
 		// Generate our own link
 		$s_title = $GLOBALS['LANG']->sL('LLL:EXT:realurl_clearcache/locallang.xml:rm.clearRealUrlPageCache', true);
-		$s_imagePath = t3lib_extMgm::extRelPath('realurl_clearcache').'res/';
+		$s_imagePath = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('realurl_clearcache').'res/';
 		if(strpos($s_imagePath,'typo3conf') !== false) $s_imagePath = '../'.$s_imagePath;
 		$s_image = '<img src="'.$s_imagePath.'be_page_icon.gif" title="'.$s_title.'" alt="'.$s_title.'" />';
 		$s_pageIconLink = '<a href="'.$s_clearCacheCmdUri.'">'.$s_image.'</a>';
@@ -127,7 +126,7 @@ class tx_realurlclearcache {
 	 */
 	public function clearPageCache() {
 		// Initialize
-		$i_pid = intval(t3lib_div::_GET('id'));
+		$i_pid = intval(\TYPO3\CMS\Core\Utility\GeneralUtility::_GET('id'));
 		
 		// Clear RealURL cache tables
 		$GLOBALS['TYPO3_DB']->exec_DELETEquery(
