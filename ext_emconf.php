@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array (
 	'description' => 'Adds a clear cache button for RealURL in the back-end clear cache menu.',
 	'category' => 'be',
 	'shy' => 0,
-	'version' => '1.0.6-dev',
+	'version' => '1.0.6',
 	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
@@ -36,7 +36,7 @@ $EM_CONF[$_EXTKEY] = array (
 	array (
 		'depends' => 
 		array (
-			'realurl' => '',
+			'realurl' => '2.0.0-0.0.0',
 			'typo3' => '4.3.0-0.0.0',
 		),
 		'conflicts' => 
